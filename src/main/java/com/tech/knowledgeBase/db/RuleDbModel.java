@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.io.Serializable;
 
 @Data
 @Builder
@@ -14,15 +13,15 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Entity
 @Table(name = "rules")
-@IdClass(RuleDbModel.IdClass.class)
 public class RuleDbModel {
-    @Id
-    @Column(name = "rule_namespace")
-    private String ruleNamespace;
 
     @Id
     @Column(name = "rule_id")
-    private String ruleId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "rule_namespace")
+    private String namespace;
 
     @Column(name = "condition")
     private String condition;
@@ -36,9 +35,5 @@ public class RuleDbModel {
     @Column(name = "description")
     private String description;
 
-    @Data
-    static class IdClass implements Serializable {
-        private String ruleNamespace;
-        private String ruleId;
-    }
+
 }

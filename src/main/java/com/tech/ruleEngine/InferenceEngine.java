@@ -100,5 +100,5 @@ public abstract class InferenceEngine<INPUT_DATA, OUTPUT_RESULT> {
     }
 
     protected abstract OUTPUT_RESULT initializeOutputResult();
-    protected abstract RuleNamespace getRuleNamespace();
+    protected abstract RuleNamespace getNamespace();
 }

@@ -16,9 +16,10 @@ public class RuleEngine {
     private KnowledgeBaseService knowledgeBaseService;
 
     public Object run(InferenceEngine inferenceEngine, Object inputData) {
-        String ruleNamespace = inferenceEngine.getRuleNamespace().toString();
+        String namespace = inferenceEngine.getNamespace().toString();
         //TODO: Here for each call, we are fetching all rules from db. It should be cache.
-        List<Rule> allRulesByNamespace = knowledgeBaseService.getAllRuleByNamespace(ruleNamespace);
+        log.debug("name space "+namespace);
+        List<Rule> allRulesByNamespace = knowledgeBaseService.getAllRuleByNamespace(namespace);
         Object result = inferenceEngine.run(allRulesByNamespace, inputData);
         return result;
     }

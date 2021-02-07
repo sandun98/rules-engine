@@ -1,47 +1,74 @@
 package com.tech.knowledgeBase;
 
 import com.google.common.base.Enums;
-import com.tech.restAPI.RuleNamespace;
 import com.tech.knowledgeBase.db.RuleDbModel;
 import com.tech.knowledgeBase.db.RulesRepository;
 import com.tech.knowledgeBase.models.Rule;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.tech.restAPI.RuleNamespace;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class KnowledgeBaseService {
-    @Autowired
-    private RulesRepository rulesRepository;
+    private final RulesRepository rulesRepository;
+
+    public KnowledgeBaseService(RulesRepository rulesRepository) {
+        this.rulesRepository = rulesRepository;
+    }
 
     public List<Rule> getAllRules(){
         return rulesRepository.findAll().stream()
                 .map(
-                        ruleDbModel -> mapFromDbModel(ruleDbModel)
+                        this::mapFromDbModel
                 )
                 .collect(Collectors.toList());
     }
 
-    public List<Rule> getAllRuleByNamespace(String ruleNamespace){
-        return rulesRepository.findByRuleNamespace(ruleNamespace).stream()
+    public List<Rule> getAllRuleByNamespace(String namespace){
+        return rulesRepository.findByNamespace(namespace).stream()
                 .map(
-                        ruleDbModel -> mapFromDbModel(ruleDbModel)
+                        this::mapFromDbModel
                 )
                 .collect(Collectors.toList());
     }
+
+    public void save(Rule rule){
+        RuleDbModel rm = RuleDbModel.builder()
+                .namespace(rule.getNamespace().toString()).id(rule.getId())
+                .condition(rule.getCondition())
+                .action(rule.getAction())
+                .description(rule.getDescription())
+                .priority(rule.getPriority())
+                .build();
+        rulesRepository.save(rm);
+    }
+
 
     private Rule mapFromDbModel(RuleDbModel ruleDbModel){
-        RuleNamespace namespace = Enums.getIfPresent(RuleNamespace.class, ruleDbModel.getRuleNamespace().toUpperCase())
+        RuleNamespace namespace = Enums.getIfPresent(RuleNamespace.class, ruleDbModel.getNamespace().toUpperCase())
                 .or(RuleNamespace.DEFAULT);
         return Rule.builder()
-                .ruleNamespace(namespace)
-                .ruleId(ruleDbModel.getRuleId())
+                .namespace(namespace)
+                .id(ruleDbModel.getId())
                 .condition(ruleDbModel.getCondition())
                 .action(ruleDbModel.getAction())
                 .description(ruleDbModel.getDescription())
                 .priority(ruleDbModel.getPriority())
                 .build();
+    }
+
+
+    public Rule findById( Long id) {
+        return mapFromDbModel(rulesRepository.findById(id).get());
+    }
+
+
+    public boolean deleteRule(Long id) {
+        rulesRepository.deleteById(id);
+        return  true;
     }
 }

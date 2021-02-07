@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tech.knowledgeBase.KnowledgeBaseService;
 import com.tech.knowledgeBase.models.Rule;
 import com.tech.restAPI.RuleNamespace;
-import com.tech.rulesImpl.insuranceRuleEngine.InsuranceDetails;
-import com.tech.rulesImpl.insuranceRuleEngine.PolicyHolderDetails;
 import com.tech.rulesImpl.loanRuleEngine.LoanDetails;
 import com.tech.rulesImpl.loanRuleEngine.UserDetails;
 import lombok.extern.slf4j.Slf4j;
@@ -53,7 +51,7 @@ public class RuleEngineTest {
 
     @Test
     public void verifyGetAllRules() throws Exception {
-        mockMvc.perform(get("/get-all-rules")
+        mockMvc.perform(get("/rules-by-nampspace/LOAN")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()
         );
@@ -125,24 +123,24 @@ public class RuleEngineTest {
 
     private List<Rule> getListOfRules(){
         Rule rule1 = Rule.builder()
-                .ruleNamespace(RuleNamespace.LOAN)
-                .ruleId("1")
+                .namespace(RuleNamespace.LOAN)
+                .id(1L)
                 .condition("input.monthlySalary >= 50000.0 && input.cibilScore >= 500 && input.requestedLoanAmount<1500000 && $(bank.target_done) == false")
                 .action("output.setApprovalStatus(true); output.setInterestRate($(bank.interest)); output.setSanctionedPercentage(90);output.setProcessingFees(2000);output.setAccountNumber(input.accountNumber);")
                 .priority(1)
-                .description("A person is eligible for loan?")
+                .description("A person is eligible for loan")
                 .build();
         Rule rule2 = Rule.builder()
-                .ruleNamespace(RuleNamespace.LOAN)
-                .ruleId("2")
+                .namespace(RuleNamespace.LOAN)
+                .id(2L)
                 .condition("(input.monthlySalary < 50000.0 && input.cibilScore <= 300 && input.requestedLoanAmount >= 1000000) || $(bank.target_done) == true")
                 .action("output.setApprovalStatus(false); output.setInterestRate(0.0); output.setSanctionedPercentage(0.0);output.setProcessingFees(0);output.setAccountNumber(input.accountNumber);")
                 .priority(2)
                 .description("A person is eligible for car loan?")
                 .build();
         Rule rule3 = Rule.builder()
-                .ruleNamespace(RuleNamespace.LOAN)
-                .ruleId("3")
+                .namespace(RuleNamespace.LOAN)
+                .id(3L)
                 .condition("input.monthlySalary >= 20000.0 && input.cibilScore >= 300 && input.cibilScore < 500 && input.requestedLoanAmount <= 1000000 && $(bank.target_done) == false")
                 .action("output.setApprovalStatus(true); output.setInterestRate($(bank.interest)); output.setSanctionedPercentage(70);output.setProcessingFees(1000);output.setAccountNumber(input.accountNumber);")
                 .priority(2)

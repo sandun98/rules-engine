@@ -7,6 +7,6 @@ import java.util.List;
 
 @Repository
 public interface RulesRepository extends JpaRepository<RuleDbModel, Long> {
-    List<RuleDbModel> findByRuleNamespace(String ruleNamespace);
-    List<RuleDbModel> findAll();
+    List<RuleDbModel> findByNamespace(String namespace);
+
 }

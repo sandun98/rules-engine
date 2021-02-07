@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 public class Rule {
-    RuleNamespace ruleNamespace;
-    String ruleId;
+    RuleNamespace namespace;
+    Long id;
     String condition;
     String action;
     Integer priority;

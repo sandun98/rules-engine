@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 public class InsuranceInferenceEngine extends InferenceEngine<PolicyHolderDetails, InsuranceDetails> {
 
     @Override
-    protected RuleNamespace getRuleNamespace() {
+    protected RuleNamespace getNamespace() {
         return RuleNamespace.INSURANCE;
     }
 

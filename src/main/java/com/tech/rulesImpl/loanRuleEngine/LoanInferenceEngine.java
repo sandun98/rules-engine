@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 public class LoanInferenceEngine extends InferenceEngine<UserDetails, LoanDetails> {
 
     @Override
-    protected RuleNamespace getRuleNamespace() {
+    protected RuleNamespace getNamespace() {
         return RuleNamespace.LOAN;
     }
 
