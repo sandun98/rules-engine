@@ -34,7 +34,6 @@ interface IProps {
     rule: Rule;
     onSave: Function;
     onClose: Function;
-    open: boolean;
 }
 
 export default function RuleDetail(props: IProps) {
@@ -109,7 +108,7 @@ export default function RuleDetail(props: IProps) {
                 </form>
             </DialogContent>
             <DialogActions>
-                <Button onClick={(e) => {
+                <Button onClick={
                     onSave(
                         {
                             id: props.rule.id,
@@ -118,8 +117,8 @@ export default function RuleDetail(props: IProps) {
                             action: action,
                             condition: condition
                         }
-                    );
-                }} color="primary">
+                    )
+                } color="primary">
                     Save
                 </Button>
             </DialogActions>

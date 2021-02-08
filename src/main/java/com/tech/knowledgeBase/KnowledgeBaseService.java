@@ -5,6 +5,8 @@ import com.tech.knowledgeBase.db.RuleDbModel;
 import com.tech.knowledgeBase.db.RulesRepository;
 import com.tech.knowledgeBase.models.Rule;
 import com.tech.restAPI.RuleNamespace;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +29,18 @@ public class KnowledgeBaseService {
                 )
                 .collect(Collectors.toList());
     }
+
+    public long count(){
+        return rulesRepository.count();
+    }
+
+    public List<Rule> findAll(int page, int size,String sort, String sortOrder){
+        PageRequest pageRequest = PageRequest.of(page, size, "asc".equalsIgnoreCase(sortOrder)?Sort.by(sort).ascending():Sort.by(sort).descending());
+        return rulesRepository.findAll(pageRequest).stream()
+                .map(this::mapFromDbModel)
+                .collect(Collectors.toList());
+    }
+
 
     public List<Rule> getAllRuleByNamespace(String namespace){
         return rulesRepository.findByNamespace(namespace).stream()

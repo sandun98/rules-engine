@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 
-import {createStyles, makeStyles, Theme} from '@material-ui/core/styles';
+import {createStyles, makeStyles, Theme,withStyles} from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -10,10 +10,9 @@ import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Paper from '@material-ui/core/Paper';
-import {Dialog, IconButton, Slide, Typography} from "@material-ui/core";
+import {Dialog, IconButton, Typography} from "@material-ui/core";
 import RuleDetail from "./RuleDetail";
-import {API, getComparator, Order, stableSort} from "./common/utils";
-import {TransitionProps} from "@material-ui/core/transitions";
+import {API,Order} from "./common/utils";
 import DeleteIcon from '@material-ui/icons/Delete';
 import AddIcon from '@material-ui/icons/Add';
 import Toolbar from "@material-ui/core/Toolbar";
@@ -54,18 +53,26 @@ interface EnhancedTableProps {
     rowCount: number;
 }
 
+
+const StyledTableCell = withStyles((theme: Theme) =>
+    createStyles({
+        head: {
+            backgroundColor: theme.palette.primary.light,
+            color: theme.palette.common.white,
+        }
+
+    }),
+)(TableCell);
 function EnhancedTableHead(props: EnhancedTableProps) {
     const {classes, order, orderBy, onRequestSort} = props;
     const createSortHandler = (property: keyof Rule) => (event: React.MouseEvent<unknown>) => {
         onRequestSort(event, property);
     };
-
     return (
         <TableHead>
             <TableRow>
-
                 {headCells.map((headCell) => (
-                    <TableCell
+                    <StyledTableCell
                         key={headCell.id}
                         align={headCell.numeric ? 'right' : 'left'}
                         padding={headCell.disablePadding ? 'none' : 'default'}
@@ -83,7 +90,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
                                 </span>
                             ) : null}
                         </TableSortLabel>
-                    </TableCell>
+                    </StyledTableCell>
                 ))}
             </TableRow>
         </TableHead>
@@ -91,7 +98,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 }
 
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles(() =>
     createStyles({
         root: {
             width: '100%',
@@ -117,7 +124,6 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-
 export default function RulesView() {
     const classes = useStyles();
     const [order, setOrder] = useState<Order>('asc');
@@ -128,25 +134,23 @@ export default function RulesView() {
     const [rows, setRows] = useState<Array<Rule>>([]);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [open, setOpen] = React.useState(false);
+    const [count, setCount] = React.useState(0);
 
-    const handleClose = () => {
-        setOpen(false);
-    };
+
     useEffect(() => {
         findRules();
-
-    }, []);
+    }, [page,rowsPerPage,orderBy,order]);
 
     const findRules = () => {
-        fetch(API + 'rules', {headers: {'Content-Type': 'application/json'}})
-            .then(response => response.json())
-            .then(rules => {
-                setRows(rules);
+
+        fetch(API + 'rules/'+page+'/'+rowsPerPage+'/'+orderBy+'/'+order, {headers: {'Content-Type': 'application/json'}})
+            .then(response => response.json()).then(results => {
+                setRows(results.rows);
+                setCount(results.count)
             }).catch(reason => alert(reason));
     }
 
     const saveRule = (data: Rule) => {
-
         fetch(API + 'rules', {
             method: 'POST',
             body: JSON.stringify(data),
@@ -156,6 +160,12 @@ export default function RulesView() {
             .catch(error => alert(error));
     }
 
+    const handleDelete = (event: React.MouseEvent<unknown>, data: Rule) => {
+
+        if (window.confirm('Are you sure you want to delete?'))
+            deleteRule(data.id);
+
+    };
     const deleteRule = (id: number) => {
         fetch(API + 'rules/' + id, {
             method: 'DELETE',
@@ -179,12 +189,7 @@ export default function RulesView() {
         setSelected(newSelected);
         setOpen(true);
     };
-    const handleDelete = (event: React.MouseEvent<unknown>, data: Rule) => {
 
-        if (window.confirm('Are you sure you want to delete?'))
-            deleteRule(data.id);
-
-    };
 
 
     const handleChangePage = (event: unknown, newPage: number) => {
@@ -199,21 +204,25 @@ export default function RulesView() {
 
     const isSelected = (id: number) => selected.indexOf(id) !== -1;
 
-    const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
+    const emptyRows = rowsPerPage - Math.min(rowsPerPage, count - page * rowsPerPage);
 
-    const Transition = React.forwardRef(function Transition(
-        props: TransitionProps & { children?: React.ReactElement },
-        ref: React.Ref<unknown>,
-    ) {
-        return <Slide direction="up" ref={ref} {...props} />;
-    });
+    const handleClose = () => {
+        setOpen(false);
+    };
+
     return (
         <React.Fragment>
             <Toolbar>
                 <Typography variant="h6" noWrap>
                     Rules
                 </Typography>
-                <IconButton aria-label="delete" size={"small"} edge={"end"}>
+                <IconButton aria-label="delete" size={"small"} edge={"end"} onClick={(event) => handleClick(event,  {
+                    id: 0,
+                    description: '',
+                    namespace: '',
+                    action: '',
+                    condition: ''
+                })}>
                     <AddIcon/>
                 </IconButton>
             </Toolbar>
@@ -228,12 +237,11 @@ export default function RulesView() {
                             order={order}
                             orderBy={orderBy}
                             onRequestSort={handleRequestSort}
-                            rowCount={rows.length}
+                            rowCount={count}
                             onSelectAllClick={(e) => console.log(e.bubbles)}/>
                         <TableBody>
-                            {stableSort(rows, getComparator(order, orderBy))
-                                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                                .map((row, index) => {
+                            {
+                                rows.map((row, index) => {
                                     const isItemSelected = isSelected(row.id);
                                     const labelId = `enhanced-table-checkbox-${index}`;
 
@@ -276,11 +284,12 @@ export default function RulesView() {
                 <TablePagination
                     rowsPerPageOptions={[5, 10, 25]}
                     component="div"
-                    count={rows.length}
+                    count={count}
                     rowsPerPage={rowsPerPage}
                     page={page}
-                    onChangePage={handleChangePage}
+                    onChangePage={(e,page)=> handleChangePage(e,page)}
                     onChangeRowsPerPage={handleChangeRowsPerPage}
+
                 />
             </Paper>
 
@@ -290,7 +299,7 @@ export default function RulesView() {
                 open={open}
                 onClose={handleClose}
             >
-                {selectedRow && <RuleDetail rule={selectedRow} onSave={saveRule} open={open} onClose={handleClose}/>}
+                {selectedRow && <RuleDetail rule={selectedRow} onSave={saveRule} onClose={handleClose}/>}
             </Dialog>
         </React.Fragment>
     );

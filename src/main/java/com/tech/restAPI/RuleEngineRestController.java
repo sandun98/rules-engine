@@ -14,7 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -38,8 +40,25 @@ public class RuleEngineRestController {
         return ResponseEntity.ok(allRules);
     }
 
-    @GetMapping(value = "/rules")
+    @GetMapping(value = "/rules/all")
     public ResponseEntity<?> getAllRules() {
+        List<Rule> allRules = knowledgeBaseService.getAllRules();
+        return ResponseEntity.ok(allRules);
+    }
+
+    @GetMapping(value = "/rules/{page}/{pageSize}/{sort}/{sortOrder}")
+    public ResponseEntity<?> findAll(@PathVariable int page, @PathVariable int pageSize,@PathVariable String sort, @PathVariable String sortOrder) {
+        List<Rule> allRules = knowledgeBaseService.findAll(page,pageSize,sort,sortOrder);
+        Map<String,Object>  res = new HashMap<>();
+        res.put("rows", allRules);
+        res.put("count", knowledgeBaseService.count());
+        return ResponseEntity.ok(res);
+    }
+
+
+
+    @GetMapping(value = "/rules")
+    public ResponseEntity<?> getAllRules(String orderBy, String orded, int page, int rowsPerPAge) {
         List<Rule> allRules = knowledgeBaseService.getAllRules();
         return ResponseEntity.ok(allRules);
     }
