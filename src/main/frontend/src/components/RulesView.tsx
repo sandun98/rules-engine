@@ -10,12 +10,13 @@ import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Paper from '@material-ui/core/Paper';
-
 import {Dialog, IconButton, Slide, Typography} from "@material-ui/core";
 import RuleDetail from "./RuleDetail";
 import {API, getComparator, Order, stableSort} from "./common/utils";
 import {TransitionProps} from "@material-ui/core/transitions";
 import DeleteIcon from '@material-ui/icons/Delete';
+import AddIcon from '@material-ui/icons/Add';
+import Toolbar from "@material-ui/core/Toolbar";
 
 export interface Rule {
     id: number;
@@ -97,9 +98,7 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         paper: {
             width: '100%',
-            marginBottom: theme.spacing(2),
         },
-        table: {},
         visuallyHidden: {
             border: 0,
             clip: 'rect(0 0 0 0)',
@@ -114,10 +113,7 @@ const useStyles = makeStyles((theme: Theme) =>
         appBar: {
             position: 'relative',
         },
-        title: {
-            marginLeft: theme.spacing(2),
-            flex: 1,
-        },
+
     }),
 );
 
@@ -142,31 +138,31 @@ export default function RulesView() {
     }, []);
 
     const findRules = () => {
-        fetch(API+'rules',{ headers: {'Content-Type': 'application/json'}})
+        fetch(API + 'rules', {headers: {'Content-Type': 'application/json'}})
             .then(response => response.json())
             .then(rules => {
                 setRows(rules);
             }).catch(reason => alert(reason));
     }
 
-    const saveRule = (data:Rule) => {
+    const saveRule = (data: Rule) => {
 
-        fetch(API+'rules',{method: 'POST',body: JSON.stringify(data),headers: {'Content-Type': 'application/json'}})
+        fetch(API + 'rules', {
+            method: 'POST',
+            body: JSON.stringify(data),
+            headers: {'Content-Type': 'application/json'}
+        })
             .then(response => setOpen(false))
-            .catch(reason => alert(reason));
+            .catch(error => alert(error));
     }
 
     const deleteRule = (id: number) => {
-
-
-        fetch(API+'rules/' + id, {
+        fetch(API + 'rules/' + id, {
             method: 'DELETE',
-            body:'raw',
-            redirect: 'follow',
         })
             .then(response => response.text())
             .then(result => console.log(result))
-            .catch(error => console.log('error', error));
+            .catch(error => alert(error));
     }
     const handleRequestSort = (event: React.MouseEvent<unknown>, property: keyof Rule) => {
         const isAsc = orderBy === property && order === 'asc';
@@ -213,14 +209,18 @@ export default function RulesView() {
     });
     return (
         <React.Fragment>
-            <Typography align={"center"} variant={"h5"}>Rules</Typography>
+            <Toolbar>
+                <Typography variant="h6" noWrap>
+                    Rules
+                </Typography>
+                <IconButton aria-label="delete" size={"small"} edge={"end"}>
+                    <AddIcon/>
+                </IconButton>
+            </Toolbar>
             <Paper className={classes.paper}>
                 <TableContainer>
                     <Table
-                        className={classes.table}
-                        aria-labelledby="tableTitle"
                         size={'small'}
-                        aria-label="enhanced table"
                     >
                         <EnhancedTableHead
                             classes={classes}
@@ -257,7 +257,7 @@ export default function RulesView() {
                                             <TableCell onClick={(event) => handleClick(event, row)}
                                                        align="left">{row.namespace}</TableCell>
                                             <TableCell align="left" onClick={(event) => handleDelete(event, row)}>
-                                                <IconButton aria-label="delete">
+                                                <IconButton aria-label="delete" size={"small"}>
                                                     <DeleteIcon/>
                                                 </IconButton>
                                             </TableCell>
@@ -289,7 +289,6 @@ export default function RulesView() {
                 fullWidth={true}
                 open={open}
                 onClose={handleClose}
-                aria-labelledby="max-width-dialog-title"
             >
                 {selectedRow && <RuleDetail rule={selectedRow} onSave={saveRule} open={open} onClose={handleClose}/>}
             </Dialog>

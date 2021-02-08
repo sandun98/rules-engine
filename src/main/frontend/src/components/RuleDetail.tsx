@@ -45,14 +45,10 @@ export default function RuleDetail(props: IProps) {
         onClose();
     };
 
-
-
     const [description, setDescription] = useState<string>(rule.description);
     const [namespace, setNamespace] = useState<string>(rule.namespace);
     const [action, setAction] = useState<string>(rule.action);
     const [condition, setCondition] = useState<string>(rule.condition);
-
-
     return (
         <Fragment>
             <AppBar className={classes.appBar}>
@@ -90,7 +86,7 @@ export default function RuleDetail(props: IProps) {
                         <tbody>
 
                         <tr>
-                            <td width={'50%'}><TextareaAutosize rowsMin={20} className={classes.text}
+                            <td width={'50%'}><TextareaAutosize rowsMin={18} className={classes.text}
                                                                 placeholder="When (condition)" style={{width: '100%'}}
                                                                 value={condition}
 
@@ -99,7 +95,7 @@ export default function RuleDetail(props: IProps) {
                                                                     setCondition(value);
                                                                 }}/>
                             </td>
-                            <td width={'50%'}><TextareaAutosize rowsMin={20} placeholder="Then (action)"
+                            <td width={'50%'}><TextareaAutosize rowsMin={18} placeholder="Then (action)"
                                                                 className={classes.text}
                                                                 style={{width: '100%'}} value={action}
                                                                 onChange={event => {
@@ -113,13 +109,20 @@ export default function RuleDetail(props: IProps) {
                 </form>
             </DialogContent>
             <DialogActions>
-                <Button onClick={(e)=>{onSave(
-                    {id:props.rule.id, description: description,namespace:namespace, action:action, condition:condition}
-                );}} color="primary">
+                <Button onClick={(e) => {
+                    onSave(
+                        {
+                            id: props.rule.id,
+                            description: description,
+                            namespace: namespace,
+                            action: action,
+                            condition: condition
+                        }
+                    );
+                }} color="primary">
                     Save
                 </Button>
             </DialogActions>
-
         </Fragment>
     );
 }
