@@ -108,17 +108,9 @@ export default function RuleDetail(props: IProps) {
                 </form>
             </DialogContent>
             <DialogActions>
-                <Button onClick={
-                    onSave(
-                        {
-                            id: props.rule.id,
-                            description: description,
-                            namespace: namespace,
-                            action: action,
-                            condition: condition
-                        }
-                    )
-                } color="primary">
+                <Button onClick={(e)=>{onSave(
+                    {id:props.rule.id, description: description,namespace:namespace, action:action, condition:condition}
+                );}} color="primary">
                     Save
                 </Button>
             </DialogActions>

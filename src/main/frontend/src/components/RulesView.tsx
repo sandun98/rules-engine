@@ -98,7 +98,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 }
 
 
-const useStyles = makeStyles(() =>
+const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
             width: '100%',
@@ -156,7 +156,9 @@ export default function RulesView() {
             body: JSON.stringify(data),
             headers: {'Content-Type': 'application/json'}
         })
-            .then(response => setOpen(false))
+            .then(response => {
+                setOpen(false);
+            })
             .catch(error => alert(error));
     }
 
