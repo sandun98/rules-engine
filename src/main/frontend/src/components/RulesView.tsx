@@ -158,6 +158,8 @@ export default function RulesView() {
         })
             .then(response => {
                 setOpen(false);
+                setPage(0);
+                findRules();
             })
             .catch(error => alert(error));
     }
@@ -173,7 +175,11 @@ export default function RulesView() {
             method: 'DELETE',
         })
             .then(response => response.text())
-            .then(result => console.log(result))
+            .then(result =>
+        {
+            setPage(0);
+            findRules();
+        })
             .catch(error => alert(error));
     }
     const handleRequestSort = (event: React.MouseEvent<unknown>, property: keyof Rule) => {
